@@ -1,0 +1,120 @@
+---
+output:
+  pdf_document:
+    fig_height: 3
+    fig_width: 5
+  html_document:
+    fig_height: 3
+    fig_width: 5
+  word_document:
+    fig_height: 3
+    fig_width: 5
+---
+
+### STAT 230 - Analysis Component - Group 1B
+
+```{r, include=FALSE}
+library(mosaic)
+library(readr)
+library(GGally)
+```
+
+Names: Charlotte Kellogg, Anna Zhou, Alison Ortiz Dimas
+
+(Tentative) Project Title: Predicting Housing Prices in King County, Washington State
+
+Our project is about...(reminder) predicting housing prices in King County, WA, using ten quantitative variables. We are researching all houses that were sold in King County between May 2014 and May 2015 using thousands of observations from 372 dates.
+
+### Read in the data
+
+```{r}
+# Must start with a data-read in command from Prof. Wagaman
+theData <- read_csv("https://awagaman.people.amherst.edu/stat495/kc_house_data.csv")
+theData <- mutate(theData, renovated = ifelse(yr_renovated>0,"Yes","No"))
+```
+
+### Summary command on data set
+
+```{r}
+glimpse(theData)
+```
+
+
+### Data Codebook
+
+List your variables and whether they are quantitative/qualitative (numeric vs categorical), along with other notes about the variables. Hint, to make a nice list, you need to put two spaces at the end of each line to force RMarkdown to start a new line. Check this out below:
+
+Our variables are:  
+Variable 1 -  date - categorical
+Variable 2 -  bedrooms - numeric
+Variable 3 -  bathrooms - numeric
+Variable 4 - sqft_living - numeric
+Variable 5 - sqft_lot - numeric
+Variable 6 - floors - numeric
+Variable 7 - condition - numeric
+Variable 8 - sqft_basement - numeric
+Variable 9 - yr_built - numeric
+Variable 10 - renovated - categorical
+
+### Analysis Plan
+
+A rough outline for your proposed analysis, including univariate summaries, bivariate (or multivariate) relationships and plans for your model(s) and visualizations should follow via the sections below; as well as any additional thoughts about your randomization-based procedure. 
+
+This section doesn't need to have plots for EVERY variable in your data set if you have many, but it needs to demonstrate that you've started exploring the data, identifying issues that arise, and are looking into what appropriate models might be. 
+
+What you do here may be useful for your reports (i.e. may reuse it), so you may want to spend time making nice labels for plots, etc. 
+
+#### Prelim Univariate Analysis
+
+Obtain basic univariate descriptive statistics and graphs for variables relevant to your analysis.
+
+```{r}
+gf_dens(~bedrooms, data=theData)
+gf_dens(~bathrooms, data=theData)
+gf_dens(~sqft_living, data=theData)
+gf_dens(~sqft_lot, data=theData)
+gf_dens(~floors, data=theData)
+gf_dens(~condition, data=theData)
+gf_dens(~sqft_basement, data=theData)
+gf_dens(~yr_built, data=theData)
+gf_dens(~renovated, data=theData)
+gf_dens(~price, data = theData)
+
+msummary(theData$price)
+msummary(theData$bedrooms)
+msummary(theData$bathrooms)
+msummary(theData$sqft_living)
+msummary(theData$sqft_lot)
+msummary(theData$floors)
+msummary(theData$condition)
+msummary(theData$sqft_basement)
+msummary(theData$yr_built)
+msummary(theData$renovated)
+
+```
+
+COMMENT on what you see! Suggest doing this as you go. I.E. Do a summary for variable 1, then variable 2, etc. 
+#strongly skewed, outliers, need reexpression? lot sof variabklity
+It is very important to do this for your response variable(s), so be sure those are included here.
+
+#### Prelim Multivariate Analysis
+
+Scatterplots and side-by-side boxplots to examine bivariate relationships that will be useful for building your models. I.E. relationships between your response(s) and predictors. You can investigate relationships between predictors of interest as desired. 
+
+```{r}
+#you might use
+#gf_point or gf_boxplot #or if trying to do many at once
+#ggpairs()
+```
+
+COMMENT on what you see! 
+
+You can do scatterplots by color, etc. to do more than bivariate relationships. Other options include faceting to include more variables. 
+
+#### Randomization-Based Procedure Thoughts
+
+Thoughts on what procedure you might like to try; aim to use, etc. 
+
+### Questions for me
+
+Any questions you have for me.
