@@ -77,7 +77,7 @@ gf_dens(~floors, data=theData)
 gf_dens(~condition, data=theData)
 gf_dens(~sqft_basement, data=theData)
 gf_dens(~yr_built, data=theData)
-gf_dens(~renovated, data=theData)
+tally(~renovated, data=theData)
 gf_dens(~price, data = theData)
 
 msummary(theData$price)
@@ -94,7 +94,9 @@ msummary(theData$renovated)
 ```
 
 COMMENT on what you see! Suggest doing this as you go. I.E. Do a summary for variable 1, then variable 2, etc. 
-#strongly skewed, outliers, need reexpression? lot sof variabklity
+  
+The density plots of bathrooms, bedrooms, sqft_living, sqft_lot, sqft_basement, and price are all highly skewed to the right, suggesting that the means are greater than the medians for those variables. There is a lot of variability within the yr_built variable. There are many more houses that were not renovated than there are that were.
+
 It is very important to do this for your response variable(s), so be sure those are included here.
 
 #### Prelim Multivariate Analysis
