@@ -119,7 +119,7 @@ theData2 <- theData %>%  #selecting the variables that we decided to work with a
            , yr_renovated)) %>%
   filter(yr_renovated != 0) #removing values where there was no renovation
 
-theData2$condition <- factor(theData2$condition)
+theData2$condition <- factor(theData2$condition) #converting condition into a categorical variable
 
 gf_boxplot(price ~ condition, data = theData2)
 
@@ -157,9 +157,6 @@ ggplot(theData2, aes(yr_renovated, price, color=condition)) + geom_point() + geo
 
 
 
-
-
-
 #gf_point or gf_boxplot #or if trying to do many at once
 ```
 
@@ -167,6 +164,7 @@ COMMENT on what you see!
 
 You can do scatterplots by color, etc. to do more than bivariate relationships. Other options include faceting to include more variables. 
 
+We definitely expected there to be stronger relationships between price and condition, year built, numbers of bedrooms, and the total square feet of the lot. There are some clear outliers in the plots between price and sqft_above and in the plot between price and sqft_basement which might be making the relationship appear stronger than it actually is. We were particularly surprised to see that the relationship between sqft_lot and price wasn't as strong as we had thought it would have been. Again, we would have to examine the impact that condition had on the high selling price of certain homes despite a lower total lot area. We also need to examine the data and figure out whether all the data points were actually homes since there was one data point that had 33 bedrooms (which leads us to believe that it might be an apartment complex).
 
 
 #### Randomization-Based Procedure Thoughts
