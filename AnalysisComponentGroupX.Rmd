@@ -104,14 +104,70 @@ It is very important to do this for your response variable(s), so be sure those 
 Scatterplots and side-by-side boxplots to examine bivariate relationships that will be useful for building your models. I.E. relationships between your response(s) and predictors. You can investigate relationships between predictors of interest as desired. 
 
 ```{r}
-#you might use
+
+theData2 <- theData %>%  #selecting the variables that we decided to work with according to proposal
+  select(c(price
+           , sqft_above
+           , sqft_basement
+           , bedrooms
+           , bathrooms
+           , sqft_living
+           , sqft_lot
+           , condition
+           , floors
+           , yr_built
+           , yr_renovated)) %>%
+  filter(yr_renovated != 0) #removing values where there was no renovation
+
+theData2$condition <- factor(theData2$condition)
+
+gf_boxplot(price ~ condition, data = theData2)
+
+ggplot(theData2, aes(sqft_above, price)) + geom_point() + geom_smooth(se = F) 
+ggplot(theData2, aes(sqft_above, price, color=yr_built)) + geom_point() + geom_smooth(se = F) 
+ggplot(theData2, aes(sqft_above, price, color=condition)) + geom_point() + geom_smooth(se = F) 
+
+ggplot(theData2, aes(sqft_basement, price)) + geom_point() + geom_smooth(se = F) 
+ggplot(theData2, aes(sqft_basement, price, color = condition )) + geom_point() + geom_smooth(se = F) 
+ggplot(theData2, aes(sqft_basement, price, color = bathrooms )) + geom_point() + geom_smooth(se = F) 
+
+ggplot(theData2, aes(bedrooms, price)) + geom_point() + geom_smooth(se=F) 
+ggplot(theData2, aes(bedrooms, price, color = condition)) + geom_point() + geom_smooth(se=F) 
+
+ggplot(theData2, aes(bathrooms, price)) + geom_point() + geom_smooth(se=F) 
+ggplot(theData2, aes(bathrooms, price, color = condition)) + geom_point() + geom_smooth(se=F) 
+ggplot(theData2, aes(bathrooms, price, color = bedrooms)) + geom_point() + geom_smooth(se=F) 
+
+ggplot(theData2, aes(sqft_lot, price)) + geom_point() + geom_smooth(se = F) 
+ggplot(theData2, aes(sqft_lot, price, color = bathrooms)) + geom_point() + geom_smooth(se=F) 
+ggplot(theData2, aes(sqft_lot, price, color = condition)) + geom_point() + geom_smooth(se=F) 
+ggplot(theData2, aes(sqft_lot, price, color = floors)) + geom_point() + geom_smooth(se=F) 
+
+ggplot(theData2, aes(floors, price)) + geom_point() + geom_smooth(se = F) 
+ggplot(theData2, aes(floors, price, color = bedrooms)) + geom_point() + geom_smooth(se = F) 
+ggplot(theData2, aes(floors, price, color = sqft_lot)) + geom_point() + geom_smooth(se = F)
+
+
+ggplot(theData2, aes(yr_built, price)) + geom_point() +  geom_smooth(se = F)
+ggplot(theData2, aes(yr_built, price, color = condition)) + geom_point() +  geom_smooth(se = F)
+
+
+ggplot(theData2, aes(yr_renovated, price)) + geom_point() + geom_smooth(se=F) 
+ggplot(theData2, aes(yr_renovated, price, color=condition)) + geom_point() + geom_smooth(se=F) 
+
+
+
+
+
+
 #gf_point or gf_boxplot #or if trying to do many at once
-#ggpairs()
 ```
 
 COMMENT on what you see! 
 
 You can do scatterplots by color, etc. to do more than bivariate relationships. Other options include faceting to include more variables. 
+
+
 
 #### Randomization-Based Procedure Thoughts
 
