@@ -1,0 +1,105 @@
+---
+output:
+  pdf_document:
+    fig_height: 3
+    fig_width: 5
+  html_document:
+    fig_height: 3
+    fig_width: 5
+  word_document:
+    fig_height: 3
+    fig_width: 5
+---
+### ADD TITLE HERE
+### STAT 230 - GROUP X - Project Report by YOUR NAMES HERE
+
+```{r, include = FALSE}
+#NOTE: This is a template. It has suggestions and directions throughout to help guide you. However, the final documents should NOT contain these notes and instructions, so they are in chunks with INCLUDE = FALSE. Be sure they are not turned on in your submission! You should type outside these code chunks, and put your code in other code chunks, so these instruction ones remain untouched. I also strongly recommend that you keep ALL work saved in another .Rmd, and only put here what you are planning to submit. You need to compile this file to .pdf, and then submit both the .pdf and this .Rmd file to Dropbox to complete your project submission. 
+```
+
+
+
+```{r, include = FALSE}
+#do not delete this chunk
+library(mosaic)
+library(readr)
+```
+
+
+### Introduction
+
+```{r, include = FALSE}
+#An overview of your project. 
+
+#In a few paragraphs, you should explain clearly and precisely what your research question is, why it is interesting, and what contribution you have made towards answering that question. You should give an overview of the specifics of your analysis, but not the full details. Most readers never make it past the introduction, so this is your chance to hook the reader, and is in many ways the most important part of the paper!
+
+#Careful here - some folks start putting results in the intro. You are laying the groundwork here, not giving the details. By the time we finish this section, we should know that you are planning to fit a multiple regression model, what the response variable is, and what your secondary analysis is, and the general setting, but we don't need all the details just yet. 
+```
+
+### Data 
+
+```{r, include = FALSE}
+#A brief description of your data set and preliminary analysis.
+
+#What variables are included? What did you learn from your preliminary analysis? Some basic univariate and bivariate analysis (graphs, favstats, correlation, etc.) or multivariate analysis that is relevant should be included. You should describe your data wrangling process (what if anything did you need to do to get the data set in order?) and cite the data set (if not above). I.E. if you merged files, got files from a website, etc. you need to discuss all that here before getting into the bulk of the analysis. This report should go over all the key steps you followed. 
+
+#Here is where you should read in the data, do the filter, select, mutates, etc. and derive new variables (including re-expressions!). You may not ``know'' you need the re-expressions until you perform the regression, but the idea is, in your write-up, you should already know what final model you want to present, so you can state here that you needed the re-expression and go ahead and include it.
+
+#Here and below, I recommend an R chunk with a little code then output then comment format, rather than large chunks or lots of output at a time. This is how our notes and homework solutions are organized. Take a look at the .Rmds to see. 
+```
+
+
+```{r}
+#Data Wrangling Chunk
+
+#Put in read-in command # follow with other needed data wrangling commands
+```
+
+
+```{r, include = FALSE}
+#Start with univariate analysis that is relevant/interesting/necessary to understand the analysis
+#Often, this will include the distribution of the response variable
+#Lots of this part will be from your Analysis Component
+```
+
+
+
+
+### Models and Results
+
+```{r, include = FALSE}
+#This section is a description of your models including an explanation of what your findings and analysis tells us about the research question, as well as what you learned from your randomization procedure. It should be clear what your final models are and how you arrived at them via a combination of the output and your text discussion. You don't have to show all the intermediate models (unless you feel showing one or two is useful for your narrative), but a paragraph explanation of what happened to get to the final model would be good. Recall you need at least 2 methods from class used. You should interpret results and (some) meaningful coefficients in context and explain their relevance. What do your findings and models tell us that we didn't already know before?
+		
+# You may want to include ``negative" results, but be careful about how you interpret them. For example, you may want to say something along the lines of: ``we did not find sufficient evidence that explanatory variable $x$ is associated with response variable $y$", or ``explanatory variable $x$ did not provide any additional explanatory power above what was already conveyed by explanatory variable $z$." On other hand, you probably shouldn't claim: ``there is no relationship between $x$ and $y$."
+		
+#The section should include a full diagnostic (i.e. condition checks) analysis, with interpretation of figures that you provide. If this is woven in up above, that's fine. But don't forget to check conditions/ diagnostics! For the randomization procedure, what did you learn from the procedure that you didn't already know from the models, or what did it confirm? (The bulk of your code for the report will be in this section). 
+```
+
+
+```{r}
+#add more code chunks
+```
+
+
+
+
+
+### Conclusion
+
+```{r, include = FALSE}
+#A summary of your findings, a discussion of their limitations, and suggested steps for future work.
+
+#First, remind the reader of the question that you originally set out to answer, and summarize your findings. 
+
+#Second, discuss the limitations of your findings and model.
+
+#Finally, explain what could be done to improve your analysis. This is your last opportunity to clarify the scope of your findings before a journalist misinterprets them and makes wild extrapolations! Protect yourself by being clear about what is not implied by your work.
+```
+
+### References
+
+```{r, include = FALSE}
+#At minimum, the data set citation must be provided 
+
+#If you engaged with any other references, they should be included here as well, with in-line parenthetical citation in the text above. E.G. Summarized text from source (Author Year). 
+```
