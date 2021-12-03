@@ -44,7 +44,7 @@ glimpse(theData)
 ```{r}
 theMod <- lm(price ~ bedrooms+bathrooms+sqft_living+sqft_lot+floors+condition+yr_built+renovated, data = theData)
 msummary(theMod)
-vif(theMod)
+car::vif(theMod)
 ```
 
 
@@ -91,16 +91,16 @@ gf_dens(~yr_built, data=theData)
 tally(~renovated, data=theData)
 gf_dens(~price, data = theData)
 
-msummary(theData$price)
-msummary(theData$bedrooms)
-msummary(theData$bathrooms)
-msummary(theData$sqft_living)
-msummary(theData$sqft_lot)
-msummary(theData$floors)
-msummary(theData$condition)
-msummary(theData$sqft_basement)
-msummary(theData$yr_built)
-msummary(theData$renovated)
+favstats(theData$price)
+favstats(theData$bedrooms)
+favstats(theData$bathrooms)
+favstats(theData$sqft_living)
+favstats(theData$sqft_lot)
+favstats(theData$floors)
+favstats(theData$condition)
+favstats(theData$sqft_basement)
+favstats(theData$yr_built)
+favstats(theData$renovated)
 
 ```
 
@@ -131,6 +131,8 @@ theData2 <- theData %>%  #selecting the variables that we decided to work with a
   filter(yr_renovated != 0) #removing values where there was no renovation
 
 theData2$condition <- factor(theData2$condition) #converting condition into a categorical variable
+theData2$floors <- factor(theData2$floors) #converting condition into a categorical variable
+
 
 gf_boxplot(price ~ condition, data = theData2)
 
