@@ -37,6 +37,17 @@ theData <- mutate(theData, renovated = ifelse(yr_renovated>0,"Yes","No"))
 
 ```{r}
 glimpse(theData)
+
+### Summary command on data set
+````
+
+```{r}
+theMod <- lm(price ~ bedrooms+bathrooms+sqft_living+sqft_lot+floors+condition+yr_built+renovated, data = theData)
+msummary(theMod)
+vif(theMod)
+```
+
+
 ```
 
 
