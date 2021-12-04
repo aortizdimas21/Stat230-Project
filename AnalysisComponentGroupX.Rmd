@@ -29,7 +29,7 @@ Our project is about predicting housing prices in King County, WA, using ten qua
 
 ```{r}
 # Must start with a data-read in command from Prof. Wagaman
-theData <- read_csv("https://awagaman.people.amherst.edu/stat495/kc_house_data.csv") %>%
+theData2 <- read_csv("https://awagaman.people.amherst.edu/stat495/kc_house_data.csv") %>%
   mutate(renovated = ifelse(yr_renovated>0,"Yes","No")) %>%
   mutate(basement = ifelse(sqft_basement > 0, 1, 0)) %>%
   mutate(condition = as.factor(condition)) %>%
@@ -45,11 +45,109 @@ glimpse(theData)
 ### Summary command on data set
 ````
 
+### Building the SLR models:
 ```{r}
-theMod <- lm(price ~ bedrooms+bathrooms+sqft_living+sqft_lot+floors+condition+yr_built+renovated, data = theData)
-msummary(theMod)
-car::vif(theMod)
+### outlier at point 15857 with 33 bedrooms -> remove from data
+theData2 <- filter(theData, (bedrooms) < (33))
 ```
+
+```{r}
+theData2 <- mutate(theData2, logprice = log(price))
+theData2<- mutate(theData2, logbathrooms = log(bathrooms))
+theData2 <- mutate(theData2, logliving = log(sqft_living))
+theData2 <- mutate(theData2, loglot = log(sqft_lot))
+### re-expressing variables using natural log in order to better satisfy conditions 
+```
+
+```{r}
+mod1 <- lm(logprice ~ bedrooms, data = theData2)
+mplot(mod1, which = 1)
+mplot(mod1, which = 2)
+
+```
+
+```{r}
+mod2 <- lm(logprice ~ bathrooms, data = theData2)
+mplot(mod2, which = 1)
+mplot(mod2, which = 2)
+```
+
+```{r}
+mod3 <- lm(logprice ~ logliving, data = theData)
+mplot(mod3, which = 1)
+mplot(mod3, which = 2)
+
+###re-expressing sqft living values to satisfy homoscedasticity + normality conditions
+```
+
+```{r}
+mod4 <- lm(logprice ~ loglot, data = theData2)
+mplot(mod4, which = 1)
+mplot(mod4, which = 2)
+```
+
+```{r}
+mod5 <- lm(logprice ~ floors, data = theData2)
+mplot(mod5, which = 1)
+mplot(mod5, which = 2)
+```
+
+```{r}
+mod6 <- lm(logprice ~ condition, data = theData2)
+mplot(mod6, which = 1)
+mplot(mod6, which = 2)
+```
+
+```{r}
+mod7 <- lm(logprice ~ basement, data = theData2)
+
+mplot(mod7, which = 1)
+### not sure why residuals vs fitted plot is not working
+mplot(mod7, which = 2)
+```
+
+```{r}
+mod8 <- lm(logprice ~ yr_built, data = theData2)
+mplot(mod8, which = 1)
+mplot(mod8, which = 2)
+```
+
+```{r}
+mod9 <- lm(logprice ~ renovated, data = theData2)
+mplot(mod9, which = 1)
+mplot(mod9, which = 2)
+```
+
+
+### Building the MLR model:
+
+```{r}
+theMod <- lm(logprice ~ bedrooms+bathrooms+logliving+loglot+yr_built+renovated+basement+floors+condition, data = theData2)
+msummary(theMod)
+
+mplot(theMod, which = 1)
+mplot(theMod, which = 2)
+### not sure why it's not letting me fit the full model -- not enough memory apparently?
+
+```
+
+```{r}
+theMod2 <- lm(price ~ bedrooms+bathrooms+sqft_living+sqft_lot+floors+condition+yr_built+renovated, data = theData)
+msummary(theMod2)
+car::vif(theMod2)
+
+### confused as to why original model above without re-expressions has higher R-squared than new model
+### all variables appear to be significant in the MLR 'kitchen sink' model, VIFs all <5
+```
+
+
+```{r}
+mplot(theMod, which = 1)
+mplot(theMod, which = 2)
+
+### conditions for inference are not met, must re-express / use randomization-based procedure 
+```
+
 
 
 ### Data Codebook
