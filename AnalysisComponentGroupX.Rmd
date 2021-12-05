@@ -127,6 +127,24 @@ mplot(mod10, which = 2)
 ### Building the MLR model:
 
 ```{r}
+
+### ORIGINAL MODEL WITHOUT RE-EXPRESSIONS:
+theMod2 <- lm(price ~ bedrooms+bathrooms+sqft_living+sqft_lot+floors+grade+yr_built+renovated, data = theData)
+msummary(theMod2)
+car::vif(theMod2)
+
+### all variables appear to be significant in the MLR 'kitchen sink' model, VIFs all <5
+```
+
+
+```{r}
+mplot(theMod2, which = 1)
+mplot(theMod2, which = 2)
+
+### conditions for inference are not met, must re-express / use randomization-based procedure 
+```
+
+```{r}
 theMod <- lm(logprice ~ bedrooms+bathrooms+logliving+loglot+yr_built+renovated+basement+floors+grade, data = theData2)
 msummary(theMod)
 
@@ -214,6 +232,12 @@ msummary(bestMod2)
 ```
 
 ```{r}
+anova(bestMod2, bestMod)
+
+### nested F-test comparing simplified model without basement + floors to larger model -- significant p-value so we should keep the larger model 
+```
+
+```{r}
 bestMod3 <- lm(logprice ~ bedrooms+bathrooms+loglot+yr_built+grade, data = theData2)
 msummary(bestMod3)
 
@@ -248,42 +272,12 @@ t <- as.data.frame(t)
 gf_dens(~ V1, data = t) %>%
   gf_lims(x = c(0, 25)) %>%
   gf_labs(title = "Randomization Distribution for Group F from ANOVA") %>%
-  gf_vline(xintercept = res, color = "red")
 ```
 
 
 ```{r}
 pdata(~ V1, res[1], data = t, lower.tail = FALSE)
 ### p-value = 0, therefore randomization test confirms the main effects for floors & basement are significant
-```
-
-
-
-```{r}
-anova(bestMod2, bestMod)
-
-### nested F-test comparing simplified model without basement + floors to larger model -- significant p-value so we should keep the larger model 
-```
-
-
-
-```{r}
-
-### ORIGINAL MODEL WITHOUT RE-EXPRESSIONS:
-theMod2 <- lm(price ~ bedrooms+bathrooms+sqft_living+sqft_lot+floors+grade+yr_built+renovated, data = theData)
-msummary(theMod2)
-car::vif(theMod2)
-
-### confused as to why original model above without re-expressions has higher R-squared than new model
-### all variables appear to be significant in the MLR 'kitchen sink' model, VIFs all <5
-```
-
-
-```{r}
-mplot(theMod2, which = 1)
-mplot(theMod2, which = 2)
-
-### conditions for inference are not met, must re-express / use randomization-based procedure 
 ```
 
 
