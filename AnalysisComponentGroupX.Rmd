@@ -33,7 +33,8 @@ theData2 <- read_csv("https://awagaman.people.amherst.edu/stat495/kc_house_data.
   mutate(renovated = ifelse(yr_renovated>0,"Yes","No")) %>%
   mutate(basement = ifelse(sqft_basement > 0, 1, 0)) %>%
   mutate(condition = as.factor(condition)) %>%
-  mutate(floors = as.factor(floors))
+  mutate(floors = as.factor(floors)) %>%
+  mutate(grade = as.factor(grade)) %>%
 
 ```
 
@@ -47,7 +48,9 @@ glimpse(theData)
 
 ### Building the SLR models:
 ```{r}
+
 ### outlier at point 15857 with 33 bedrooms -> remove from data
+
 theData2 <- filter(theData, (bedrooms) < (33))
 ```
 
@@ -118,6 +121,14 @@ mplot(mod9, which = 1)
 mplot(mod9, which = 2)
 ```
 
+```{r}
+mod10 <- lm(logprice ~ grade, data = theData2)
+mplot(mod10, which = 1)
+mplot(mod10, which = 2)
+
+### i think we should include grade in our model
+```
+
 
 ### Building the MLR model:
 
@@ -127,11 +138,81 @@ msummary(theMod)
 
 mplot(theMod, which = 1)
 mplot(theMod, which = 2)
-### not sure why it's not letting me fit the full model -- not enough memory apparently?
 
+car::vif(theMod)
+
+### full kitchen sink model - renovated + condition2 are not significant using 0.05 alpha level
+### all VIFs<5
 ```
 
 ```{r}
+theMod3 <- lm(logprice ~ bedrooms+bathrooms+logliving+loglot+yr_built+basement+floors, data = theData2)
+msummary(theMod3)
+
+### model without renovated + condition -- R-squared = 0.5365 compared to full model 0.5385
+```
+
+```{r}
+bestMod <- lm(logprice ~ bedrooms+bathrooms+logliving+loglot+yr_built+basement+floors+grade, data = theData2)
+msummary(bestMod)
+car::vif(bestMod)
+
+### best model so far -- adj R-squared of 0.6404
+```
+
+```{r}
+intMod1 <- lm(logprice ~ bedrooms*bathrooms+logliving+loglot+yr_built+basement+floors+grade, data = theData2)
+msummary(intMod1)
+
+### interaction term with bedrooms & bathrooms -- adj R-squared of 0.6421, appears significant 
+```
+
+```{r}
+bestMod3 <- lm(logprice ~ bedrooms+bathrooms+logliving+loglot+yr_built+grade, data = theData2)
+msummary(bestMod3)
+
+### simpler model without basement + floors -- adj R-squared of 0.6363, i think this is probably best
+```
+
+```{r}
+intMod2 <- lm(logprice ~ bedrooms*bathrooms+logliving+loglot+yr_built+grade, data = theData2)
+msummary(intMod2)
+
+### model w/ interaction between bedrooms & bathrooms -- adj R-squared of 0.6375
+```
+
+```{r}
+intMod3 <- lm(logprice ~ bedrooms+bathrooms+logliving*loglot+yr_built+grade, data = theData2)
+msummary(intMod3)
+
+### model w/ interaction between bedrooms & bathrooms -- adj R-squared of 0.6369
+```
+
+```{r}
+intMod4 <- lm(logprice ~ bedrooms+bathrooms+logliving+loglot+yr_built*grade, data = theData2)
+msummary(intMod4)
+
+### model w/ interaction between year built & grade -- adj R-squared of 0.6364
+```
+
+```{r}
+memod <- lm(logprice ~ floors, data = theData2)
+anova(memod)
+
+### anova model comparing mean house price across floors - appears significant
+```
+
+```{r}
+anova(bestMod3, bestMod)
+
+### nested F-test comparing simplified model to kitchen sink -- significant p-value so we should keep the kitchen sink
+```
+
+
+
+```{r}
+
+### ORIGINAL MODEL WITHOUT RE-EXPRESSIONS:
 theMod2 <- lm(price ~ bedrooms+bathrooms+sqft_living+sqft_lot+floors+condition+yr_built+renovated, data = theData)
 msummary(theMod2)
 car::vif(theMod2)
@@ -142,8 +223,8 @@ car::vif(theMod2)
 
 
 ```{r}
-mplot(theMod, which = 1)
-mplot(theMod, which = 2)
+mplot(theMod2, which = 1)
+mplot(theMod2, which = 2)
 
 ### conditions for inference are not met, must re-express / use randomization-based procedure 
 ```
