@@ -31,12 +31,12 @@ Our project is about predicting housing prices in King County, WA, using ten qua
 # Must start with a data-read in command from Prof. Wagaman
 theData2 <- read_csv("https://awagaman.people.amherst.edu/stat495/kc_house_data.csv") %>%
   mutate(renovated = ifelse(yr_renovated>0,"Yes","No")) %>%
-  mutate(basement = ifelse(sqft_basement > 0, 1, 0)) %>%
+  mutate(basement = ifelse(sqft_basement>0, "Yes", "No")) %>%
   mutate(condition = as.factor(condition)) %>%
   mutate(floors = as.factor(floors)) %>%
-  mutate(grade = as.factor(grade)) %>%
-
+  mutate(grade = as.factor(grade))
 ```
+
 
 ### Summary command on data set
 
@@ -95,17 +95,11 @@ mplot(mod5, which = 1)
 mplot(mod5, which = 2)
 ```
 
-```{r}
-mod6 <- lm(logprice ~ condition, data = theData2)
-mplot(mod6, which = 1)
-mplot(mod6, which = 2)
-```
 
 ```{r}
 mod7 <- lm(logprice ~ basement, data = theData2)
 
 mplot(mod7, which = 1)
-### not sure why residuals vs fitted plot is not working
 mplot(mod7, which = 2)
 ```
 
@@ -126,14 +120,14 @@ mod10 <- lm(logprice ~ grade, data = theData2)
 mplot(mod10, which = 1)
 mplot(mod10, which = 2)
 
-### i think we should include grade in our model
+### i think we should include grade in our model instead of condition
 ```
 
 
 ### Building the MLR model:
 
 ```{r}
-theMod <- lm(logprice ~ bedrooms+bathrooms+logliving+loglot+yr_built+renovated+basement+floors+condition, data = theData2)
+theMod <- lm(logprice ~ bedrooms+bathrooms+logliving+loglot+yr_built+renovated+basement+floors+grade, data = theData2)
 msummary(theMod)
 
 mplot(theMod, which = 1)
@@ -141,23 +135,30 @@ mplot(theMod, which = 2)
 
 car::vif(theMod)
 
-### full kitchen sink model - renovated + condition2 are not significant using 0.05 alpha level
+### full kitchen sink model - renovated not significant using 0.05 alpha level
 ### all VIFs<5
 ```
 
 ```{r}
-theMod3 <- lm(logprice ~ bedrooms+bathrooms+logliving+loglot+yr_built+basement+floors, data = theData2)
-msummary(theMod3)
+anova(bestMod, theMod)
 
-### model without renovated + condition -- R-squared = 0.5365 compared to full model 0.5385
+### nested F-test shows full kitchen sink model is not necessary (bestMod doesn't have renovated)
 ```
 
 ```{r}
 bestMod <- lm(logprice ~ bedrooms+bathrooms+logliving+loglot+yr_built+basement+floors+grade, data = theData2)
 msummary(bestMod)
+
 car::vif(bestMod)
 
 ### best model so far -- adj R-squared of 0.6404
+### logliving has a VIF of >5
+```
+
+
+```{r}
+mplot(bestMod, which = 1)
+mplot(bestMod, which = 2)
 ```
 
 ```{r}
@@ -168,44 +169,100 @@ msummary(intMod1)
 ```
 
 ```{r}
-bestMod3 <- lm(logprice ~ bedrooms+bathrooms+logliving+loglot+yr_built+grade, data = theData2)
-msummary(bestMod3)
-
-### simpler model without basement + floors -- adj R-squared of 0.6363, i think this is probably best
+simpIntMod <- lm(logprice ~ bedrooms*bathrooms, data = theData2)
+mplot(simpIntMod, which = 1)
+mplot(simpIntMod, which = 2)
 ```
 
+
+
 ```{r}
-intMod2 <- lm(logprice ~ bedrooms*bathrooms+logliving+loglot+yr_built+grade, data = theData2)
+intMod2 <- lm(logprice ~ bedrooms+bathrooms+logliving*loglot+yr_built+basement+floors+grade, data = theData2)
 msummary(intMod2)
 
-### model w/ interaction between bedrooms & bathrooms -- adj R-squared of 0.6375
+### model w/ interaction between sqft living and sqft lot -- adj R-squared of 0.6406
 ```
 
 ```{r}
-intMod3 <- lm(logprice ~ bedrooms+bathrooms+logliving*loglot+yr_built+grade, data = theData2)
+intMod3 <- lm(logprice ~ bedrooms+bathrooms+logliving+loglot+basement+floors+yr_built*grade, data = theData2)
 msummary(intMod3)
 
-### model w/ interaction between bedrooms & bathrooms -- adj R-squared of 0.6369
+### model w/ interaction between year built & grade -- adj R-squared of 0.6406
 ```
 
+
 ```{r}
-intMod4 <- lm(logprice ~ bedrooms+bathrooms+logliving+loglot+yr_built*grade, data = theData2)
+intMod4 <- lm(logprice ~ bedrooms+bathrooms*floors+logliving+loglot+basement+yr_built+grade, data = theData2)
 msummary(intMod4)
 
-### model w/ interaction between year built & grade -- adj R-squared of 0.6364
+### model w/ interaction between bathrooms & floors -- adj R-squared of 0.6408
 ```
 
 ```{r}
-memod <- lm(logprice ~ floors, data = theData2)
+intMod5 <- lm(logprice ~ bedrooms*floors+bathrooms+logliving+loglot+basement+yr_built+grade, data = theData2)
+msummary(intMod5)
+
+### model w/ interaction between bathrooms & floors -- adj R-squared of 0.6414
+```
+
+
+```{r}
+bestMod2 <- lm(logprice ~ bedrooms+bathrooms+logliving+loglot+yr_built+grade, data = theData2)
+msummary(bestMod2)
+
+### simpler model without basement + floors -- adj R-squared of 0.6363
+```
+
+```{r}
+bestMod3 <- lm(logprice ~ bedrooms+bathrooms+loglot+yr_built+grade, data = theData2)
+msummary(bestMod3)
+
+anova(bestMod3, bestMod2)
+
+### need to keep logliving in model
+```
+
+```{r}
+memod <- lm(logprice ~ floors+basement, data = theData2)
 anova(memod)
 
-### anova model comparing mean house price across floors - appears significant
+### 2-Way ANOVA model comparing mean house price across floors & basement - appears significant
+```
+
+### Randomization F-Test for the 2-Way ANOVA 
+```{r}
+res <- anova(memod)$"F value"# store the F statistics
+res
+
+newmod <- lm(shuffle(logprice) ~ floors+basement, data = theData2)
+res2 <- anova(newmod)$"F value"
+res2
 ```
 
 ```{r}
-anova(bestMod3, bestMod)
+set.seed(40) #make the results reproducible
+t <- do(10000) * (anova(lm(shuffle(logprice) ~ floors+basement, data = theData2))$"F value")
 
-### nested F-test comparing simplified model to kitchen sink -- significant p-value so we should keep the kitchen sink
+t <- as.data.frame(t)
+
+gf_dens(~ V1, data = t) %>%
+  gf_lims(x = c(0, 25)) %>%
+  gf_labs(title = "Randomization Distribution for Group F from ANOVA") %>%
+  gf_vline(xintercept = res, color = "red")
+```
+
+
+```{r}
+pdata(~ V1, res[1], data = t, lower.tail = FALSE)
+### p-value = 0, therefore randomization test confirms the main effects for floors & basement are significant
+```
+
+
+
+```{r}
+anova(bestMod2, bestMod)
+
+### nested F-test comparing simplified model without basement + floors to larger model -- significant p-value so we should keep the larger model 
 ```
 
 
@@ -213,7 +270,7 @@ anova(bestMod3, bestMod)
 ```{r}
 
 ### ORIGINAL MODEL WITHOUT RE-EXPRESSIONS:
-theMod2 <- lm(price ~ bedrooms+bathrooms+sqft_living+sqft_lot+floors+condition+yr_built+renovated, data = theData)
+theMod2 <- lm(price ~ bedrooms+bathrooms+sqft_living+sqft_lot+floors+grade+yr_built+renovated, data = theData)
 msummary(theMod2)
 car::vif(theMod2)
 
