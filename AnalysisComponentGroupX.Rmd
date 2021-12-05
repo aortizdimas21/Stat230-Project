@@ -133,11 +133,6 @@ theMod2 <- lm(price ~ bedrooms+bathrooms+sqft_living+sqft_lot+floors+grade+yr_bu
 msummary(theMod2)
 car::vif(theMod2)
 
-### all variables appear to be significant in the MLR 'kitchen sink' model, VIFs all <5
-```
-
-
-```{r}
 mplot(theMod2, which = 1)
 mplot(theMod2, which = 2)
 
