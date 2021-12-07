@@ -196,22 +196,14 @@ The log re-expressions and number of predictors do cause some limitations/diffic
 
 ### Conclusion
 
-```{r, include = FALSE}
-#ALISON
 
-#A summary of your findings, a discussion of their limitations, and suggested steps for future work.
+When we began our project, we aimed investigate how well home attributes such as bedrooms and bathrooms could predict the selling price for homes in King County. To do so, we fit a series of simple linear regressions between the attributes and selling price, and we were able to identify and remove clear outliers in our data such as a home with 33 bedrooms.  For our initial model, we proceeded with a kitchen-sink model without performing any re-expressions on the predictors. However, our conditions were clearly not met with the residuals vs fitted plot showing a fan pattern and the Q-Q plot having clear deviations at the tails. After re-expression of price, sqft_living and sqft_lot using natural log, these issues were resolved, and we re-fit a kitchen-sink model. This updated model helped us identify that the predictor renovation was not significant and so it was removed. Ultimately, we arrived at a multiple linear regression model (full model listed above) with a R^2 value of 0.64, overall F-statistic of 3200, and a p-value of <2.2e-16. The final model included the following predictors: bedrooms, bathrooms, log(living), log(lot), yr_built, basement, grade, and floor.
 
-#First, remind the reader of the question that you originally set out to answer, and summarize your findings. 
+Despite having decent results, we must still acknowledge the limited scope of our models. The data used is from 2015 and is specific only to King County which includes one of the largest cities in the country, Seattle, so it may not be applicable to dissimilar counties. Much has changed in the housing market since 2015 and such, we are unable to extrapolate our findings to homes sold today.  It is also important to note that our analysis cannot be used to form cause-and-effect relationships because the data is observational. Furthermore, we conclude that there are factors that we are unable to account for with our model such as availability of homes, location, and emotions.  A buyer who is desperate for a home is willing to pay more than what the home may be worth. In the future, we would be interested in investigating whether the same results are seen in other similar counties in 2015. In addition to that, we are curious to see how much of an impact selling prices of homes around a home influence a home’s selling price. 
 
-#Second, discuss the limitations of your findings and model.
 
-#Finally, explain what could be done to improve your analysis. This is your last opportunity to clarify the scope of your findings before a journalist misinterprets them and makes wild extrapolations! Protect yourself by being clear about what is not implied by your work.
-```
 
 ### References
 
-```{r, include = FALSE}
-#At minimum, the data set citation must be provided 
+Harlfoxem. “House Sales in King County, USA.” Kaggle, 25 Aug. 2016, www.kaggle.com/harlfoxem/housesalesprediction.  
 
-#If you engaged with any other references, they should be included here as well, with in-line parenthetical citation in the text above. E.G. Summarized text from source (Author Year). 
-```
