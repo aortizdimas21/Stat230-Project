@@ -10,8 +10,8 @@ output:
     fig_height: 3
     fig_width: 5
 ---
-### ADD TITLE HERE
-### STAT 230 - GROUP X - Project Report by YOUR NAMES HERE
+### Predicting Housing Prices in King County, Washington
+### STAT 230 - GROUP 1B - Project Report by Alison Ortiz-Dimas, Anna Zhou, & Charlotte Kellogg
 
 ```{r, include = FALSE}
 #NOTE: This is a template. It has suggestions and directions throughout to help guide you. However, the final documents should NOT contain these notes and instructions, so they are in chunks with INCLUDE = FALSE. Be sure they are not turned on in your submission! You should type outside these code chunks, and put your code in other code chunks, so these instruction ones remain untouched. I also strongly recommend that you keep ALL work saved in another .Rmd, and only put here what you are planning to submit. You need to compile this file to .pdf, and then submit both the .pdf and this .Rmd file to Dropbox to complete your project submission. 
@@ -29,6 +29,8 @@ library(readr)
 ### Introduction
 
 ```{r, include = FALSE}
+# CHARLOTTE
+
 #An overview of your project. 
 
 #In a few paragraphs, you should explain clearly and precisely what your research question is, why it is interesting, and what contribution you have made towards answering that question. You should give an overview of the specifics of your analysis, but not the full details. Most readers never make it past the introduction, so this is your chance to hook the reader, and is in many ways the most important part of the paper!
@@ -39,6 +41,8 @@ library(readr)
 ### Data 
 
 ```{r, include = FALSE}
+#CHARLOTTE + ANNA
+
 #A brief description of your data set and preliminary analysis.
 
 #What variables are included? What did you learn from your preliminary analysis? Some basic univariate and bivariate analysis (graphs, favstats, correlation, etc.) or multivariate analysis that is relevant should be included. You should describe your data wrangling process (what if anything did you need to do to get the data set in order?) and cite the data set (if not above). I.E. if you merged files, got files from a website, etc. you need to discuss all that here before getting into the bulk of the analysis. This report should go over all the key steps you followed. 
@@ -50,13 +54,30 @@ library(readr)
 
 
 ```{r}
-#Data Wrangling Chunk
+theData<-read_csv("https://awagaman.people.amherst.edu/stat495/kc_house_data.csv") %>%
+  mutate(renovated = ifelse(yr_renovated>0,"Yes","No")) %>%
+  mutate(basement = ifelse(sqft_basement>0, "Yes", "No")) %>%
+  mutate(floors = as.factor(floors))
+#converting 'renovated,' 'basement,' and 'floors' to categorical variables
+```
 
-#Put in read-in command # follow with other needed data wrangling commands
+
+```{r}
+theData2 <- filter(theData, (bedrooms) < (33))
+#filtering outlier with 33 bedrooms out of dataset
+```
+
+```{r}
+theData2 <- mutate(theData2, logprice = log(price))
+theData2 <- mutate(theData2, logliving = log(sqft_living))
+theData2 <- mutate(theData2, loglot = log(sqft_lot))
+#re-expressing variables using natural log in order to better satisfy normality & constant variance for errors conditions
+#decided to re-express price (response), sqft_living, & sqft_lot after fitting individual SLR models for 9 predictors
 ```
 
 
 ```{r, include = FALSE}
+#CHARLOTTE 
 #Start with univariate analysis that is relevant/interesting/necessary to understand the analysis
 #Often, this will include the distribution of the response variable
 #Lots of this part will be from your Analysis Component
@@ -64,10 +85,11 @@ library(readr)
 
 
 
-
 ### Models and Results
 
 ```{r, include = FALSE}
+#ANNA 
+
 #This section is a description of your models including an explanation of what your findings and analysis tells us about the research question, as well as what you learned from your randomization procedure. It should be clear what your final models are and how you arrived at them via a combination of the output and your text discussion. You don't have to show all the intermediate models (unless you feel showing one or two is useful for your narrative), but a paragraph explanation of what happened to get to the final model would be good. Recall you need at least 2 methods from class used. You should interpret results and (some) meaningful coefficients in context and explain their relevance. What do your findings and models tell us that we didn't already know before?
 		
 # You may want to include ``negative" results, but be careful about how you interpret them. For example, you may want to say something along the lines of: ``we did not find sufficient evidence that explanatory variable $x$ is associated with response variable $y$", or ``explanatory variable $x$ did not provide any additional explanatory power above what was already conveyed by explanatory variable $z$." On other hand, you probably shouldn't claim: ``there is no relationship between $x$ and $y$."
@@ -77,16 +99,106 @@ library(readr)
 
 
 ```{r}
-#add more code chunks
+mod1 <- lm(price ~ bedrooms+bathrooms+sqft_living+sqft_lot+floors+grade+yr_built+renovated, data = theData)
+
+mplot(mod1, which = 1)
+mplot(mod1, which = 2)
+
+#original kitchen sink MLR model without re-expressions 
+#The residuals vs. fitted plot shows a clear "megaphone" pattern (increasing variance) and the normal Q-Q plot shows deviation from expected line in both tails, especially in the upper tail. Therefore both the constant variance and normality of error terms conditions are violated, so we needed re-expressions.
+```
+
+```{r}
+mod2 <- lm(logprice ~ bedrooms+bathrooms+logliving+loglot+yr_built+renovated+basement+floors+grade, data = theData2)
+msummary(mod2)
+
+mplot(mod2, which = 1)
+mplot(mod2, which = 2)
+
+#Checking conditions: The scatterplots from our SLR analysis indicated that most of the predictor variables have at least a weak linear relationship with price, so the linearity condition for multiple linear regression is satisfied. In terms of independence and randomness, the residuals vs. fitted plot shows a random scatter of points so it appears that the response variable is indeed independent of the errors, although the data is a complete sample of all houses in King County rather than a random sample. After the log re-expressions, there no longer appear to be any major issues with the constant variance and normality of error terms conditions (residuals vs. fitted plot shows random scatter in band of mostly constant width; vast majority of points fall along expected line in normal Q-Q plot), so we can proceed with our MLR analysis.
+```
+
+```{r}
+msummary(mod2)
+#Individual t-tests for slope coefficients indicate that 'renovatedYes' with a p-value of 0.1565 is not a significant predictor of price at the 0.05 alpha level. All other predictors, besides one level of the factor for floors, appear significant.
+```
+
+```{r}
+#refitting the MLR model without indicator for 'renovated'
+mod3 <- lm(logprice ~ bedrooms+bathrooms+logliving+loglot+yr_built+basement+floors+grade, data = theData2)
+msummary(mod3)
+
+car::vif(mod3)
+#Individual t-tests for slope coefficients indicate all predictors are significant, except for the 3.5 level of 'floors.' Overall F-test reports a F-statistic of 3207 at a p-value of <2.2e-16, which also indicates that the overall model is significant. VIFs indicate no major issues with multicollinearity - 'logliving' has a VIF of slightly >5, but this makes sense since the square footage of the house's interior is directly related to the total square footage of the property lot - it is still important to keep in the model since the R-squared value drops quite a bit when logliving is removed. 
+```
+
+```{r}
+intMod1 <- lm(logprice ~ bedrooms*bathrooms+logliving+loglot+yr_built+basement+floors+grade, data = theData2)
+msummary(intMod1)
+
+#Testing to see whether an interaction model is necessary. Although the t-test for the slope of the interaction between bedrooms and bathrooms produced a significant p-value, the adjusted R-squared only increased by 0.0017 compared to the above additive model. We therefore decided not to add the interaction term on the basis of prioritizing simplicity, since the full additive model already has 8 predictors. Other interaction models we fit (we also included interactions between yr_built&grade, bathrooms&floors, and others) also did not raise the adjusted R-squared by a noticeable amount so we decided to stick with the additive model.
+```
+
+```{r}
+mod4 <- lm(logprice ~ bedrooms+bathrooms+logliving+loglot+yr_built+grade, data = theData2)
+msummary(mod4)
+
+anova(mod3, mod4)
+
+twoway <- lm(logprice ~ floors+basement, data = theData2)
+anova(twoway)
+```
+
+While fitting the full MLR model (mod3), we noticed that the predictors for basement and floors did not contribute greatly to increasing the model's R-squared (mod3 has an adj. R2 of 0.6404, mod4 has an adj. R2 of 0.6363), so we built a simpler model without them and performed a nested F-test as well as fit a two-way additive ANOVA model to see whether basement and floors were truly necessary to keep in the MLR model since the model is already somewhat complicated.
+
+The results of the nested F-test comparing the simplified model without basement&floors to the full MLR model produced a F statistic of 42.533 and significant p-value of 2.2e-16. This suggests that at least one of Basement and/or Floors is useful for predicting Price after accounting for the effects of the other predictors, and we should probably keep the full model (mod3).
+
+Using the two-way ANOVA output, we see that we do have evidence of significant differences in the average housing price depending on number of floors based on a reported F-statistic of 624.24 and a p-value at the smallest R can report. We also have evidence of significant differences in the average housing price depending on whether or not the property has a basement according to an F-statistic of 2557.73 and a corresponding p-value of essentially 0.
+
+```{r}
+#RANDOMIZATION F-TEST FOR THE 2-WAY ANOVA
+#We decided to run a randomization F-test for the above two-way ANOVA model in order to further confirm whether floors and basement are truly useful predictors for price. We shuffled the response, price, in order to maintain the structure of the explanatory variables.
+
+res <- anova(twoway)$"F value"# store the F statistics
+res
+
+newmod <- lm(shuffle(logprice) ~ floors+basement, data = theData2)
+res2 <- anova(newmod)$"F value"
+res2
+```
+
+```{r}
+set.seed(500) 
+t <- do(10000) * (anova(lm(shuffle(logprice) ~ floors+basement, data = theData2))$"F value")
 ```
 
 
+```{r}
+t <- as.data.frame(t)
 
+gf_dens(~ V1, data = t) %>%
+  gf_lims(x = c(0, 25)) %>%
+  gf_labs(title = "Randomization Distribution for Group F from ANOVA") 
+```
+
+
+```{r}
+pdata(~ V1, res[1], data = t, lower.tail = FALSE)
+#The pdata command produces an estimated p-value of 0, so the results of the randomization F-test confirms that the main effects for floors & basement are significant. Property prices do differ on average across either floors and/or basement, so they should be kept in the final model. 
+```
+
+After fitting all of the above models and performing the randomization procedure, we decided the best model was in fact mod3, the MLR with all predictors included except 'renovated' and an adjusted R-squared value of 0.6404. This means our model can explain 64.04% of the variability in price, which indicates a decent fit. The full fitted MLR equation is below:
+
+predicted(logprice) = 20.374 - 0.046(bedrooms) + 0.083(bathrooms) + 0.44(logliving) - 0.029(loglot) - 0.006(yr_built) + 0.052(basementYes) + 0.035(floors1.5) + 0.040(floors2) + 0.062(floors2.5) + 0.215(floors3) + 0.188(floors3.5) + 0.239(grade)
+
+The log re-expressions and number of predictors do cause some limitations/difficulties in terms of interpreting the coefficients in the model, which explains why many of our slope coefficients look somewhat odd (very small). Any new data would also have to undergo similar re-processing. 
 
 
 ### Conclusion
 
 ```{r, include = FALSE}
+#ALISON
+
 #A summary of your findings, a discussion of their limitations, and suggested steps for future work.
 
 #First, remind the reader of the question that you originally set out to answer, and summarize your findings. 
