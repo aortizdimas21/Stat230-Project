@@ -1,0 +1,153 @@
+---
+title: "Predicting Housing Prices in King County, Washington"
+author: "Alison Ortiz Dimas, Anna Zhou, and Charlotte Kellogg"
+date: "December 6th, 2021"
+output:
+  rmdformats::readthedown:
+    thumbnails: false
+    highlight: NULL
+---
+
+As we performed our analysis, we noticed that the data provided by the King County Housing Department included the latitude, longitude, and zip code of every home sold. We were curious whether location influenced the sale price of a home, but unfortunately, it was not feasible to include this in our regression, so we created this map.
+
+The map below outlines zip codes within King County and fills them in based on the average selling home price in each zip code (and uses data for all homes provided). However, it was unrealistic to plot all 20,000+ homes on the map, so the code randomly selects 150 homes to display. 
+
+```{r, include=FALSE}
+library(shiny)
+library(leaflet)
+library(tigris)
+library(dplyr)
+library(tidyverse)
+library(shinythemes)
+library(sp)
+library(sf)
+```
+
+
+```{r, include=FALSE}
+
+kingCountyData <- read_csv("kc_house_data.csv") %>%
+  mutate(renovated = ifelse(yr_renovated>0,"Yes","No"))
+
+## Taking a random sample of 150 homes since there are too many to feasibly show
+subset <- sample_n(kingCountyData, 150) %>% mutate(zipcode = as.character(zipcode)) 
+
+# getting location information
+kingCounty_zips <- zctas(cb = TRUE, starts_with = "98")
+washington_counties <-counties(state = "WA", cb = TRUE)
+kingCountyShape <- washington_counties %>% filter(NAME == "King")
+
+
+#calculating mean price 
+kingMeanPrice <- kingCountyData %>% 
+  group_by(zipcode)%>%
+  summarise(meanPrice = mean(price)) %>%
+  mutate(zipcode = as.character(zipcode)) 
+
+#meanprice for the selected home
+selectedPoints <- merge(subset, kingMeanPrice, by = "zipcode", all.y = TRUE)
+
+
+kingData <- geo_join(kingCounty_zips, selectedPoints, 
+                     by_sp = "GEOID10",
+                     by_df = "zipcode",
+                     how = "inner")
+
+meanData <- geo_join(kingCounty_zips, kingMeanPrice, 
+                     by_sp = "GEOID10",
+                     by_df = "zipcode",
+                     how = "inner")
+
+class(meanData)
+
+meanData <- as_Spatial(meanData)
+
+
+kingData <- as_Spatial(kingData)
+
+
+labels <- 
+  paste0(
+    "Zip Code: ",
+    meanData@data$GEOID10, "<br/>",
+    "Mean Selling Price: ",
+    scales::dollar(meanData@data$meanPrice)) %>%
+  lapply(htmltools::HTML)
+
+
+
+popup <- 
+  paste0(
+    "Selling Price: ",
+    scales::dollar(kingData@data$price),
+    "<br/>", "Number of bedrooms: ",
+    kingData@data$bedrooms,
+    "<br/>", "Sqft Living: ",
+    kingData@data$sqft_living,
+    "<br/>", "Sqft Lot: ",
+    kingData@data$sqft_lot) %>%
+  lapply(htmltools::HTML)
+
+pal <- colorNumeric(
+  palette = "YlOrRd",
+  domain = meanData@data$meanPrice)
+
+
+awesome <- makeAwesomeIcon(
+  icon = "home",
+  iconColor = "black",
+  markerColor = "blue",
+  library = "fa"
+)
+
+kingCountyMap <- leaflet(meanData) %>% 
+  addTiles() %>% 
+  addProviderTiles("CartoDB.Positron") %>% 
+  addPolygons(
+    data = kingCountyShape,
+    # set the color of the polygon
+    color = "#B399D4",
+    # set the opacity of the outline
+    opacity = 1,
+    # set the stroke width in pixels
+    weight = 1,
+    # set the fill opacity
+    fillOpacity = 0
+  ) %>%
+  
+  addPolygons(
+    # set the color of the polygon
+    data = meanData,
+    color = "white",
+    fillColor = ~pal(meanPrice),
+    # set the opacity of the outline
+    opacity = 1,
+    # set the stroke width in pixels
+    weight = 1,
+    # set the fill opacity
+    fillOpacity = 0.9, 
+    label = labels
+  ) %>%
+  setView(lng = -121.63, lat = 47.42, zoom = 8.54)%>%
+  
+  addMarkers(
+    data = kingData,
+    lng = ~long, lat = ~lat, 
+    popup = popup,
+    icon = makeIcon(iconUrl = "http://assets.stickpng.com/images/588a666dd06f6719692a2d18.png",
+                    iconWidth = 12, iconHeight = 12)) %>%
+  addLegend(pal = pal, 
+            values = ~meanPrice, 
+            opacity = 0.7, 
+            title = htmltools::HTML("Mean Selling Price <br> 
+                                    for Homes <br> 
+                                    by Zip Code <br>
+                                    2015"),
+            position = "bottomright",
+            labFormat = labelFormat(prefix="$"))
+```
+
+```{r}
+kingCountyMap
+```
+
