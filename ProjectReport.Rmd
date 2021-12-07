@@ -37,6 +37,12 @@ library(readr)
 
 #Careful here - some folks start putting results in the intro. You are laying the groundwork here, not giving the details. By the time we finish this section, we should know that you are planning to fit a multiple regression model, what the response variable is, and what your secondary analysis is, and the general setting, but we don't need all the details just yet. 
 ```
+How well can we predict housing prices in King County, WA based on different property attributes? This is the question that Anna, Alison, and I sought to answer. It is an interesting question because it allows us to gain a better understanding of the housing market as future homeowners. The housing market also tends to indicate the state of the economy, and having experienced the effects of the great recession in 2012, we want to know as much as possible about the influence that housing prices have on our economic opportunities. The process of obtaining an answer to that question, though, begins with discovering the aspects of a home that determine its price. 
+
+In order to analyze the influence of different property attributes like the number of bedrooms in a home and the area of living space, we used different statistical models. After converting multiple predictors from quantitative to categorical variables, we introduced multiple linear regression to our analysis. We found that re-expressions were necessary among the nine predictors being used in our first model, as well as the response. Multiple SLR models allowed us to conclude that the linearity condition for our MLR model was met, as were the normality and constant variance conditions after some re-expressions. We deemed the MLR model appropriate, despite the sample being of all houses sold in King County rather than a random sample. 
+
+Individual t-tests allowed us to discover the insignificance of the variable renovated, and there were no major issues with multi-collinearity. We prioritized simplicity by not including an insignificant interaction term in the model. We ran a randomization F-test for a two-way ANOVA model to test the significance of two predictors, basement and floors, and found that both were necessary to obtain the best model. The result was a decent fitting model which could predict 64.04% of the variability in price.
+
 
 ### Data 
 
@@ -51,6 +57,9 @@ library(readr)
 
 #Here and below, I recommend an R chunk with a little code then output then comment format, rather than large chunks or lots of output at a time. This is how our notes and homework solutions are organized. Take a look at the .Rmds to see. 
 ```
+We obtained our data from Kaggle, downloading the file from the Kaggle website. It was not an extensive process. 
+
+The ten variables included in our prelimary analysis are as follows: price, bedrooms, bathrooms, sqft_living, Sqft_lot, floors, grade, yr_built, renovated and basement. From this analysis, we learned that the density plots of bathrooms, bedrooms, sqft_living, sqft_lot, sqft_basement, and price are all highly skewed to the right, suggesting that the means are greater than the medians for those variables. There is a lot of variability within the yr_built variable. There are many more houses that were not renovated than there are that were. As for multivariate analysis, we expected there to be stronger relationships between price and condition, year built, numbers of bedrooms, and the total square feet of the lot. There were some clear outliers in the plots between price and sqft_above and in the plot between price and sqft_basement which might have made the relationship appear stronger than it actually was. We were particularly surprised to see that the relationship between sqft_lot and price wasn’t as strong as we had thought it would have been. We had to examine the impact that condition had on the high selling price of certain homes despite a lower total lot area. We also had to examine the data and figure out whether all the data points were actually homes since there was one data point that had 33 bedrooms (which led us to believe that it might be an apartment complex).
 
 
 ```{r}
